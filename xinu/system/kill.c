@@ -20,7 +20,6 @@ syscall	kill(
 		restore(mask);
 		return SYSERR;
 	}
-	kprintf("kill pid: %d, currpid: %d\n",pid, currpid);
 
 	if (--prcount <= 1) {		/* Last user process completes	*/
 		xdone();
@@ -34,17 +33,16 @@ syscall	kill(
 	}
 	freestk(prptr->prstkbase, prptr->prstklen);
 
+	//kprintf("kill pid: %d\n", pid);
 	switch (prptr->prstate) {
 	case PR_CURR:
 		prptr->prstate = PR_FREE;	/* Suicide */
-		kprintf("pidin current kill: %d\n", pid);
 		resched();
 
 	case PR_SLEEP:
 	case PR_RECTIM:
 		unsleep(pid);
 		prptr->prstate = PR_FREE;
-		kprintf("pidin sleep kill: %d\n", pid);
 		break;
 
 	case PR_WAIT:

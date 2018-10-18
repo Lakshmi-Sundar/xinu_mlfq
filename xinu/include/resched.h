@@ -7,7 +7,7 @@
 
 #define TIME_SLICE            2
 #define TIME_ALLOTMENT        10
-#define PRIORITY_BOOST_PERIOD 300 
+#define PRIORITY_BOOST_PERIOD 70 
 
 /* Structure that collects items related to deferred rescheduling	*/
 

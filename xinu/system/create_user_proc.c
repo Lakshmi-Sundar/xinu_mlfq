@@ -47,7 +47,7 @@ pid32	create_user_proc(
 
 	/* Initialize process table entry for new process */
 	prptr->prstate = PR_SUSP;	/* Initial state is suspended	*/
-	prptr->prprio = priority;
+	prptr->prprio = 1;
 
 	prptr->prttl    = 0;
 	prptr->prpriolvl = priolevel1;
@@ -113,7 +113,9 @@ void burst_execution(uint32 num_bursts, uint32 burst_duration, uint32 sleep_dura
 		while(proctab[currpid].burst_duration < burst_duration); 
 		proctab[currpid].burst_duration = 0;
 		sleepms(sleep_duration);
+		while(proctab[currpid].sleep_flag);
 	}
+	exit();
 }
 
 /*------------------------------------------------------------------------
@@ -123,8 +125,8 @@ void burst_execution(uint32 num_bursts, uint32 burst_duration, uint32 sleep_dura
 local	pid32	newpid(void)
 {
 	uint32	i;			/* Iterate through all processes*/
-	static	pid32 nextpid = 1;	/* Position in table to try or	*/
-					/*   one beyond end of table	*/
+	static	pid32 nextpid = 5;	/* Position in table to try or	*/
+	/*   one beyond end of table	*/
 
 	/* Check all NPROC slots */
 

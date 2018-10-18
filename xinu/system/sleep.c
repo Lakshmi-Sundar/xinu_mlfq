@@ -46,8 +46,11 @@ syscall	sleepms(
 		return SYSERR;
 	}
 
+	//kprintf("sleep pid: %d\n", currpid);
 	proctab[currpid].prstate = PR_SLEEP;
 	//resched();
+	proctab[currpid].sleep_flag = 1;
 	restore(mask);
-	return OK;
+	while(proctab[currpid].prstate == PR_SLEEP);
+	
 }

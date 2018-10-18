@@ -24,14 +24,14 @@ status	ready(
 	/* Set process state to indicate ready and add to ready list */
 
 	prptr = &proctab[pid];
+	//kprintf("ready pid: %d\n", pid);
 	prptr->prstate = PR_READY;
 	if(prptr->user_proc) {
-		//kprintf("prio level: %d, pid: %d\n", prptr->prpriolvl, pid);
 		insert(pid, prptr->prpriolvl, prptr->prprio);
 	}
 	else
 		insert(pid, readylist, prptr->prprio);
-	resched();
 
+	//resched();
 	return OK;
 }

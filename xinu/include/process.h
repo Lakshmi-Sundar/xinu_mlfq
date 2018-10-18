@@ -56,8 +56,10 @@ struct procent {		/* Entry in the process table		*/
 	uint32  prttl;
 	uint32  num_bursts;
 	uint32  burst_duration;
+	uint32  sleep_duration;
 	int16   prpriolvl;
 	bool8   user_proc;
+	bool8   sleep_flag;
 };
 
 /* Marker for the top of a process stack (used to help detect overflow)	*/

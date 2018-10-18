@@ -27,6 +27,7 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	ptold = &proctab[currpid];
 	pid_old = currpid;
 
+
 	if (ptold->prstate == PR_CURR) {  /* Process remains eligible */
 		//for system process only
 		if (!ptold->user_proc && (ptold->prprio > firstkey(readylist))) {
@@ -43,21 +44,17 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	}
 
 	/* Force context switch to highest priority ready process */
-
 	if((firstid(readylist) == 0) && (userprcount > 0)) {
 		if(nonempty(priolevel1)) {
 			currpid = dequeue(priolevel1);
-			kprintf("curr pid in level 1 %d\n", currpid);
 			preempt = TIME_SLICE;
 		}
 		else if(nonempty(priolevel2)) {
 			currpid = dequeue(priolevel2);
-			kprintf("curr pid in level 2 %d\n", currpid);
 			preempt = 2*TIME_SLICE;
 		}
 		else if(nonempty(priolevel3)) {
 			currpid = dequeue(priolevel3);
-			kprintf("curr pid in level 3 %d\n", currpid);
 			preempt = 4*TIME_SLICE;
 		}
 	}
@@ -68,9 +65,11 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
 	pid_new = currpid;
 	ptnew = &proctab[currpid];
 	ptnew->prstate = PR_CURR;
+	ptnew->sleep_flag = 0;
 	//preempt = QUANTUM;		/* Reset time slice for process	*/
-	if(pid_old != pid_new)
+	if(pid_old != pid_new) {
 		kprintf("ctxsw::%d-%d\n",pid_old, pid_new);
+	}
 	ctxsw(&ptold->prstkptr, &ptnew->prstkptr);
 
 	/* Old process returns here when resumed */
@@ -83,28 +82,28 @@ void	resched(void)		/* Assumes interrupts are disabled	*/
  *------------------------------------------------------------------------
  */
 status	resched_cntl(		/* Assumes interrupts are disabled	*/
-	  int32	defer		/* Either DEFER_START or DEFER_STOP	*/
-	)
+		int32	defer		/* Either DEFER_START or DEFER_STOP	*/
+		)
 {
 	switch (defer) {
 
-	    case DEFER_START:	/* Handle a deferral request */
+		case DEFER_START:	/* Handle a deferral request */
 
-		if (Defer.ndefers++ == 0) {
-			Defer.attempt = FALSE;
-		}
-		return OK;
+			if (Defer.ndefers++ == 0) {
+				Defer.attempt = FALSE;
+			}
+			return OK;
 
-	    case DEFER_STOP:	/* Handle end of deferral */
-		if (Defer.ndefers <= 0) {
+		case DEFER_STOP:	/* Handle end of deferral */
+			if (Defer.ndefers <= 0) {
+				return SYSERR;
+			}
+			if ( (--Defer.ndefers == 0) && Defer.attempt ) {
+				resched();
+			}
+			return OK;
+
+		default:
 			return SYSERR;
-		}
-		if ( (--Defer.ndefers == 0) && Defer.attempt ) {
-			resched();
-		}
-		return OK;
-
-	    default:
-		return SYSERR;
 	}
 }
